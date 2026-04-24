@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.routers import availability, guests, bookings, events, invoices, inventory, leads, reports
 
 app = FastAPI(
     title="PMS — Agentic Property Management System",
@@ -18,13 +19,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(availability.router)
+app.include_router(guests.router)
+app.include_router(bookings.router)
+app.include_router(events.router)
+app.include_router(invoices.router)
+app.include_router(inventory.router)
+app.include_router(leads.router)
+app.include_router(reports.router)
+
 
 @app.get("/health")
 def health():
     return {"status": "ok", "env": settings.APP_ENV}
-
-
-# Routers registered here as each phase is built
-# from app.routers import bookings, guests, events, invoices, payments, inventory, availability, leads, reports, agent
-# app.include_router(bookings.router, prefix="/api/v1")
-# ... etc
