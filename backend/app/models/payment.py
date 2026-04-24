@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Optional
+
 import uuid
 from datetime import date, datetime, timezone
 
@@ -23,10 +26,10 @@ class Payment(Base):
     amount: Mapped[float] = mapped_column(Numeric(12, 2), nullable=False)
     method: Mapped[str] = mapped_column(String(30), nullable=False)
     # cash/upi/card/bank_transfer/cheque
-    reference_number: Mapped[str | None] = mapped_column(String(200))
-    recorded_by: Mapped[str | None] = mapped_column(String(100))
+    reference_number: Mapped[Optional[str]] = mapped_column(String(200))
+    recorded_by: Mapped[Optional[str]] = mapped_column(String(100))
     payment_date: Mapped[date] = mapped_column(Date, nullable=False)
-    notes: Mapped[str | None] = mapped_column(Text)
+    notes: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     invoice = relationship("Invoice", back_populates="payments")

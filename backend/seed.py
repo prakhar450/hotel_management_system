@@ -183,9 +183,9 @@ def seed_invoices(db, bookings, events):
             line_items=[{"description": f"Room stay ({nights} nights)", "amount": subtotal}],
             created_at=NOW, updated_at=NOW,
         )
+        db.add(inv)
+        db.flush()  # flush each one so next_invoice_number sees it
         invoices.append(inv)
-    db.add_all(invoices)
-    db.flush()
     return invoices
 
 

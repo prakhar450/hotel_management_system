@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Optional
+
 from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, String, Text
@@ -21,8 +24,8 @@ class Task(Base):
     # pending/in_progress/done/escalated
     priority: Mapped[str] = mapped_column(String(20), default="medium")
     # low/medium/high/urgent
-    due_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    due_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     context: Mapped[dict] = mapped_column(JSONB, default=dict)
-    notes: Mapped[str | None] = mapped_column(Text)
+    notes: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)

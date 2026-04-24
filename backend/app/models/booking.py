@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Optional
+
 import uuid
 from datetime import date, datetime, timezone
 
@@ -24,16 +27,16 @@ class Booking(Base):
     room_id: Mapped[int] = mapped_column(Integer, ForeignKey("rooms.id"), nullable=False)
     check_in: Mapped[date] = mapped_column(Date, nullable=False)
     check_out: Mapped[date] = mapped_column(Date, nullable=False)
-    actual_checkin: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    actual_checkout: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    actual_checkin: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    actual_checkout: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     status: Mapped[str] = mapped_column(String(30), default="confirmed")
     # enquiry/confirmed/checked_in/checked_out/cancelled/no_show
     adults: Mapped[int] = mapped_column(Integer, default=1)
     children: Mapped[int] = mapped_column(Integer, default=0)
-    special_requests: Mapped[str | None] = mapped_column(Text)
+    special_requests: Mapped[Optional[str]] = mapped_column(Text)
     source: Mapped[str] = mapped_column(String(30), default="walk_in")
     # walk_in/phone/online/agent
-    created_by: Mapped[str | None] = mapped_column(String(100))
+    created_by: Mapped[Optional[str]] = mapped_column(String(100))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 

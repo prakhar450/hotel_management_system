@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Optional
+
 import uuid
 from datetime import date, datetime, timezone
 
@@ -21,8 +24,8 @@ class Invoice(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     invoice_number: Mapped[str] = mapped_column(String(30), unique=True, nullable=False, index=True)
-    booking_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("bookings.id"))
-    event_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("events.id"))
+    booking_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("bookings.id"))
+    event_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("events.id"))
     subtotal: Mapped[float] = mapped_column(Numeric(12, 2), nullable=False)
     tax_amount: Mapped[float] = mapped_column(Numeric(12, 2), nullable=False)
     discount_amount: Mapped[float] = mapped_column(Numeric(12, 2), default=0)

@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Optional
+
 import uuid
 from datetime import datetime, timezone
 
@@ -20,8 +23,8 @@ class AgentLog(Base):
     action: Mapped[str] = mapped_column(String(200), nullable=False)
     input_data: Mapped[dict] = mapped_column(JSONB, default=dict)
     output_data: Mapped[dict] = mapped_column(JSONB, default=dict)
-    api_endpoint: Mapped[str | None] = mapped_column(String(200))
+    api_endpoint: Mapped[Optional[str]] = mapped_column(String(200))
     success: Mapped[bool] = mapped_column(Boolean, default=True)
-    error_message: Mapped[str | None] = mapped_column(Text)
-    duration_ms: Mapped[int | None] = mapped_column(Integer)
+    error_message: Mapped[Optional[str]] = mapped_column(Text)
+    duration_ms: Mapped[Optional[int]] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, index=True)

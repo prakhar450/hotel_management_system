@@ -1,5 +1,12 @@
+import os
+from pathlib import Path
 from pydantic_settings import BaseSettings
 from pydantic import field_validator
+
+# Walk up from this file to find .env — works whether run from backend/ or project root
+_here = Path(__file__).resolve().parent
+_env_candidates = [_here / ".env", _here.parent / ".env", _here.parent.parent / ".env"]
+_env_file = next((str(p) for p in _env_candidates if p.exists()), ".env")
 
 
 class Settings(BaseSettings):
@@ -22,7 +29,7 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",")]
 
-    model_config = {"env_file": ".env", "extra": "ignore"}
+    model_config = {"env_file": _env_file, "extra": "ignore"}
 
 
 settings = Settings()

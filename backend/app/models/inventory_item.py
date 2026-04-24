@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Optional
+
 from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, Integer, String, Text, event
@@ -20,7 +23,7 @@ class InventoryItem(Base):
     available_quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     low_stock_threshold: Mapped[int] = mapped_column(Integer, default=10)
     unit: Mapped[str] = mapped_column(String(50), default="units")
-    notes: Mapped[str | None] = mapped_column(Text)
+    notes: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 

@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Optional
+
 from datetime import date, datetime, timezone
 
 from sqlalchemy import Date, DateTime, ForeignKey, Integer, Text
@@ -17,8 +20,8 @@ class InventoryUsage(Base):
     event_id: Mapped[str] = mapped_column(ForeignKey("events.id"), nullable=False, index=True)
     item_id: Mapped[int] = mapped_column(Integer, ForeignKey("inventory_items.id"), nullable=False, index=True)
     quantity_used: Mapped[int] = mapped_column(Integer, nullable=False)
-    return_date: Mapped[date | None] = mapped_column(Date)
-    notes: Mapped[str | None] = mapped_column(Text)
+    return_date: Mapped[Optional[date]] = mapped_column(Date)
+    notes: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     event = relationship("Event", lazy="select")

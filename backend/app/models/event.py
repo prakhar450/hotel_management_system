@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Optional
+
 import uuid
 from datetime import date, datetime, time, timezone
 
@@ -31,7 +34,7 @@ class Event(Base):
     guest_count: Mapped[int] = mapped_column(Integer, nullable=False)
     status: Mapped[str] = mapped_column(String(30), default="confirmed")
     # enquiry/confirmed/in_progress/completed/cancelled
-    special_requirements: Mapped[str | None] = mapped_column(Text)
+    special_requirements: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
