@@ -19,7 +19,13 @@ class AgentLog(Base):
     __tablename__ = "agent_logs"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    # Conversation grouping — all messages in one interaction share a conversation_id
+    conversation_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), index=True)
     agent_name: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    # message_type: user_request | tool_call | tool_result | response | escalation
+    message_type: Mapped[str] = mapped_column(String(30), default="response")
+    step_order: Mapped[int] = mapped_column(Integer, default=0)
+    sender_label: Mapped[Optional[str]] = mapped_column(String(100))
     action: Mapped[str] = mapped_column(String(200), nullable=False)
     input_data: Mapped[dict] = mapped_column(JSONB, default=dict)
     output_data: Mapped[dict] = mapped_column(JSONB, default=dict)
