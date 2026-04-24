@@ -1,12 +1,94 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
+## Dev Commands
+
+```bash
+# --- Local dev startup ---
+docker-compose up -d db                        # Start PostgreSQL 16 on :5432
+cd backend && uvicorn app.main:app --reload    # Backend on :8000 (uses venv)
+cd frontend && npm run dev                     # Frontend on :5173
+
+# --- Python (always use the venv) ---
+backend/venv/bin/python                        # Python interpreter
+backend/venv/bin/pip install -r backend/requirements.txt
+
+# --- Database migrations ---
+cd backend
+alembic revision --autogenerate -m "description"
+alembic upgrade head
+alembic downgrade -1                           # Roll back one migration
+alembic downgrade base && alembic upgrade head && python seed.py  # Full reset
+
+# --- Tests ---
+cd backend && backend/venv/bin/pytest tests/                      # All tests
+cd backend && backend/venv/bin/pytest tests/test_bookings.py -k "test_overlap"  # Single test
+
+# --- API docs (Swagger UI) ---
+open http://localhost:8000/docs
+```
+
+> **venv note:** `source venv/bin/activate` does not persist across shell calls in Claude Code.
+> Always use `backend/venv/bin/python` / `backend/venv/bin/pip` / `backend/venv/bin/pytest` directly.
+
+---
+
+## Architecture Overview
+
+This is a **FastAPI + PostgreSQL + React** SaaS PMS with an agentic AI layer. The repo layout is:
+
+```
+hotel_management_system/
+├── backend/app/
+│   ├── main.py          — FastAPI app, CORS, router registration
+│   ├── config.py        — pydantic-settings, reads .env
+│   ├── database.py      — SQLAlchemy engine, SessionLocal, Base, get_db()
+│   ├── models/          — SQLAlchemy ORM models (one file per table)
+│   ├── schemas/         — Pydantic request/response schemas (mirrors models/)
+│   ├── routers/         — FastAPI routers; one per domain, no business logic here
+│   ├── services/        — All business logic (booking overlap, invoice calc, pricing)
+│   ├── agents/          — Agent definitions + orchestrator
+│   └── utils/           — Invoice number generator, date helpers
+├── backend/migrations/  — Alembic migration files
+├── backend/tests/
+├── frontend/src/
+│   ├── pages/           — One React page per domain
+│   ├── components/      — Shared UI components
+│   └── api/             — Axios client functions (one per endpoint, never call APIs from components)
+└── docker-compose.yml   — Local: postgres + backend services
+```
+
+### Key invariants Claude must never break
+1. **No double bookings** — `POST /bookings` must `SELECT … FOR UPDATE` before insert.
+2. **Agents never write to DB** — agents call internal APIs; APIs call services; services write to DB.
+3. **Pricing lives in `services/pricing_service.py` only** — agents cannot set or modify prices.
+4. **Every agent call is logged** — `agent_logs` table, no exceptions.
+5. **Business logic in `services/`, never in `routers/`.**
+6. **UUIDs for all customer-facing PKs** — prevents enumeration attacks.
+
+### Agent architecture
+All five agents (`front_desk`, `accounting`, `inventory`, `sales`, `manager`) inherit from `base_agent.py`, which holds the Anthropic client, auto-logs every call to `agent_logs`, and enforces `max_tokens=1000`. The `orchestrator.py` routes tasks to the correct agent and handles escalation (`ESCALATE` → Manager Agent). Agents communicate only through the orchestrator — never directly with each other.
+
+### Request flow
+```
+React page → /api/ axios fn → FastAPI router → service layer → SQLAlchemy → PostgreSQL
+                                    ↓
+                           agents/orchestrator → base_agent → Claude API
+                                    ↓
+                              agent_logs table
+```
+
+---
+
 # Agentic Property Management System — Master Project Document
 ### Context & Build Guide for Claude Code Agents
 
 ---
 
-> **How to use this document:** Paste this entire file at the start of every Claude Code session.
-> It gives the agent full context on what we are building, the decisions already made,
-> the exact tech stack, and a prioritised to-do list. Work through the checklist in order.
-> Do not skip phases. Mark items `[x]` as you complete them.
+> Work through the checklist in order. Do not skip phases. Mark items `[x]` as you complete them.
 
 ---
 
