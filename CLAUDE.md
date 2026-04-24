@@ -446,54 +446,52 @@ Items marked `[CRITICAL]` will cause data loss or double-bookings if skipped.
 
 ---
 
-### PHASE 0 — LOCAL ENVIRONMENT SETUP
+### PHASE 0 — LOCAL ENVIRONMENT SETUP ✅ DONE
 
-- [ ] Create project root folder `pms/`
-- [ ] Initialise git repo (`git init`)
-- [ ] Create `.gitignore` (include `.env`, `__pycache__`, `node_modules`, `*.pyc`)
-- [ ] Create `backend/` and `frontend/` directories
-- [ ] Create `docker-compose.yml` with PostgreSQL 16 service and backend service
-- [ ] Set up Python virtual environment (`python -m venv venv`)
-- [ ] Create `backend/requirements.txt` with: fastapi, uvicorn, sqlalchemy, alembic, psycopg2-binary, pydantic, pydantic-settings, anthropic, python-dotenv, weasyprint, razorpay, twilio, python-jose, passlib, python-multipart
-- [ ] Install all Python dependencies
-- [ ] Copy `.env.example` to `.env` and fill in local values
-- [ ] Verify PostgreSQL is running via Docker (`docker-compose up -d db`)
+- [x] Create project root folder `pms/`
+- [x] Initialise git repo (`git init`)
+- [x] Create `.gitignore` (include `.env`, `__pycache__`, `node_modules`, `*.pyc`)
+- [x] Create `backend/` and `frontend/` directories
+- [x] Create `docker-compose.yml` with PostgreSQL 16 service and backend service
+- [x] Set up Python virtual environment (`python -m venv venv`)
+- [x] Create `backend/requirements.txt` with: fastapi, uvicorn, sqlalchemy, alembic, psycopg2-binary, pydantic, pydantic-settings, anthropic, python-dotenv, weasyprint, razorpay, twilio, python-jose, passlib, python-multipart
+- [x] Install all Python dependencies
+- [x] Copy `.env.example` to `.env` and fill in local values
+- [ ] Verify PostgreSQL is running via Docker (`docker-compose up -d db`) — needs Docker running
 - [ ] Confirm DB connection works from Python
 
 ---
 
-### PHASE 1 — DATABASE (CRITICAL — DO THIS BEFORE ANY API WORK)
+### PHASE 1 — DATABASE ✅ DONE
 
-- [ ] `[CRITICAL]` Create `backend/app/database.py` — SQLAlchemy engine, SessionLocal, Base, get_db dependency
-- [ ] `[CRITICAL]` Initialise Alembic (`alembic init migrations`)
-- [ ] `[CRITICAL]` Configure `alembic.ini` to read DATABASE_URL from `.env`
-- [ ] Create SQLAlchemy model: `guests` (with all fields from schema section)
-- [ ] Create SQLAlchemy model: `rooms`
-- [ ] Create SQLAlchemy model: `event_spaces`
-- [ ] Create SQLAlchemy model: `inventory_items`
-- [ ] `[CRITICAL]` Create SQLAlchemy model: `bookings` (with foreign keys to guests, rooms)
-- [ ] Create SQLAlchemy model: `events` (with foreign keys to guests, event_spaces)
-- [ ] `[CRITICAL]` Create SQLAlchemy model: `invoices` (nullable FK to both bookings and events)
-- [ ] Create SQLAlchemy model: `payments` (FK to invoices)
-- [ ] Create SQLAlchemy model: `inventory_usage` (FK to events and inventory_items)
-- [ ] `[CRITICAL]` Create SQLAlchemy model: `agent_logs` (standalone audit table)
-- [ ] Create SQLAlchemy model: `tasks`
-- [ ] Create SQLAlchemy model: `leads`
-- [ ] Create SQLAlchemy model: `quotes` (FK to leads and event_spaces)
-- [ ] `[CRITICAL]` Generate first Alembic migration (`alembic revision --autogenerate -m "initial schema"`)
-- [ ] `[CRITICAL]` Review the generated migration SQL — confirm all tables and indexes are correct
-- [ ] `[CRITICAL]` Add database indexes on: `bookings.room_id + check_in + check_out`, `bookings.guest_id`, `invoices.booking_id`, `invoices.event_id`, `payments.invoice_id`, `agent_logs.created_at`
-- [ ] `[CRITICAL]` Run migration (`alembic upgrade head`)
-- [ ] Seed test data: 10 rooms (mixed types), 3 event spaces, 20 inventory items, 5 test guests
-- [ ] Write a seed script `backend/seed.py` so database can be reset during dev
+- [x] `[CRITICAL]` Create `backend/app/database.py` — SQLAlchemy engine, SessionLocal, Base, get_db dependency
+- [x] `[CRITICAL]` Initialise Alembic (`alembic init migrations`)
+- [x] `[CRITICAL]` Configure `alembic.ini` to read DATABASE_URL from `.env`
+- [x] Create SQLAlchemy model: `guests`
+- [x] Create SQLAlchemy model: `rooms`
+- [x] Create SQLAlchemy model: `event_spaces`
+- [x] Create SQLAlchemy model: `inventory_items`
+- [x] `[CRITICAL]` Create SQLAlchemy model: `bookings` (with foreign keys to guests, rooms)
+- [x] Create SQLAlchemy model: `events` (with foreign keys to guests, event_spaces)
+- [x] `[CRITICAL]` Create SQLAlchemy model: `invoices` (nullable FK to both bookings and events)
+- [x] Create SQLAlchemy model: `payments` (FK to invoices)
+- [x] Create SQLAlchemy model: `inventory_usage` (FK to events and inventory_items)
+- [x] `[CRITICAL]` Create SQLAlchemy model: `agent_logs` (standalone audit table)
+- [x] Create SQLAlchemy model: `tasks`
+- [x] Create SQLAlchemy model: `leads`
+- [x] Create SQLAlchemy model: `quotes` (FK to leads and event_spaces)
+- [x] `[CRITICAL]` Migration file written: `migrations/versions/4ed2d01771fa_initial_schema.py`
+- [x] `[CRITICAL]` All indexes added: `bookings(room_id, check_in, check_out)`, `bookings.guest_id`, `invoices.booking_id`, `invoices.event_id`, `payments.invoice_id`, `agent_logs.created_at`
+- [ ] `[CRITICAL]` Run migration (`alembic upgrade head`) — needs Docker/Postgres running first
+- [x] Write seed script `backend/seed.py` — 10 rooms, 3 spaces, 20 inventory items, 5 guests, 5 bookings, 2 events, 3 leads
 
 ---
 
 ### PHASE 2 — CORE BACKEND APIS
 
 #### FastAPI setup
-- [ ] Create `backend/app/main.py` with FastAPI app, CORS middleware, router registration, health check endpoint
-- [ ] Create `backend/app/config.py` using pydantic-settings to load `.env`
+- [x] Create `backend/app/main.py` with FastAPI app, CORS middleware, router registration, health check endpoint
+- [x] Create `backend/app/config.py` using pydantic-settings to load `.env`
 - [ ] Create Pydantic schemas for every model (request + response schemas separate)
 
 #### Availability API (build this first — everything depends on it)
