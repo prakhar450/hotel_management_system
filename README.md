@@ -8,27 +8,27 @@
 
 **Dashboard** — Morning briefing, key stats, quick actions
 
-![Dashboard](docs/screenshots/dashboard.jpg)
+![Dashboard](docs/screenshots/dashboard.png)
 
 **Rooms** — Live status grid by floor, colour-coded availability
 
-![Rooms](docs/screenshots/rooms.jpg)
+![Rooms](docs/screenshots/rooms.png)
 
 **Bookings** — Full booking list with one-click check-in / check-out
 
-![Bookings](docs/screenshots/bookings.jpg)
+![Bookings](docs/screenshots/bookings.png)
 
 **Invoices** — Auto-generated invoices with status tabs and payment tracking
 
-![Invoices](docs/screenshots/invoices.jpg)
+![Invoices](docs/screenshots/invoices.png)
 
 **Inventory** — Consumables by category, low-stock alerts
 
-![Inventory](docs/screenshots/inventory.jpg)
+![Inventory](docs/screenshots/inventory.png)
 
 **Agent Chat** — Talk directly to any of the five AI agents
 
-![Agent Chat](docs/screenshots/agents.jpg)
+![Agent Chat](docs/screenshots/agents.png)
 
 ---
 
