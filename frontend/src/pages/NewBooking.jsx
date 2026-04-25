@@ -72,7 +72,7 @@ export default function NewBooking() {
 
       // Ask Front Desk agent to confirm & summarise
       const agentRes = await invokeAgent('front_desk',
-        `A booking has just been created. Room: ${selectedRoom.room_number} (${selectedRoom.room_type}), Guest: ${isNewGuest ? newGuest.name : selectedGuest?.name}, Check-in: ${checkIn}, Check-out: ${checkOut}, ${nights} nights. Please confirm this and note any important things the guest should know.`,
+        `A booking has just been created. Room: ${selectedRoom.room_number} (${selectedRoom.type}), Guest: ${isNewGuest ? newGuest.name : selectedGuest?.name}, Check-in: ${checkIn}, Check-out: ${checkOut}, ${nights} nights. Please confirm this and note any important things the guest should know.`,
         { today: format(new Date(), 'yyyy-MM-dd') }
       )
       const thread = await getConversation(agentRes.data.conversation_id)
@@ -187,7 +187,9 @@ export default function NewBooking() {
                       <div>
                         <p className="font-semibold text-gray-900">Room {room.room_number}</p>
                         <p className="text-sm text-gray-500 capitalize">{room.type} · Floor {room.floor}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{room.amenities?.join(', ')}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {room.amenities ? Object.keys(room.amenities).filter(k => room.amenities[k]).join(', ') : ''}
+                        </p>
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-gray-900">₹{room.base_rate?.toLocaleString('en-IN')}</p>
@@ -284,7 +286,7 @@ export default function NewBooking() {
             <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-500">Room</span>
-                <span className="font-medium">Room {selectedRoom.room_number} ({selectedRoom.room_type})</span>
+                <span className="font-medium">Room {selectedRoom.room_number} ({selectedRoom.type})</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Guest</span>
@@ -304,7 +306,7 @@ export default function NewBooking() {
               </div>
               <div className="border-t border-gray-200 pt-2 flex justify-between">
                 <span className="text-gray-500">Total (before GST)</span>
-                <span className="font-bold text-gray-900">₹{(selectedRoom.base_price * nights).toLocaleString('en-IN')}</span>
+                <span className="font-bold text-gray-900">₹{(selectedRoom.base_rate * nights).toLocaleString('en-IN')}</span>
               </div>
             </div>
 
