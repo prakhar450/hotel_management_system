@@ -14,6 +14,21 @@ from app.services.invoice_service import create_invoice_for_event
 router = APIRouter(prefix="/api/v1/events", tags=["Events"])
 
 
+@router.get("/spaces")
+def list_spaces(db: Session = Depends(get_db)):
+    spaces = db.query(EventSpace).all()
+    return [
+        {
+            "id": s.id,
+            "name": s.name,
+            "type": s.type,
+            "capacity": s.capacity,
+            "base_rate_per_day": float(s.base_rate_per_day),
+        }
+        for s in spaces
+    ]
+
+
 @router.post("", status_code=201)
 def create_event(data: EventCreate, db: Session = Depends(get_db)):
     space = db.query(EventSpace).filter(EventSpace.id == data.space_id).first()
@@ -38,7 +53,14 @@ def create_event(data: EventCreate, db: Session = Depends(get_db)):
             detail=f"{space.name} is already booked on {data.event_date} from {conflict.start_time} to {conflict.end_time}"
         )
 
-    event = Event(id=uuid.uuid4(), **data.model_dump())
+    event_name = data.name or f"{data.event_type.title()} Event"
+    event_data = data.model_dump()
+    event_data["name"] = event_name
+    # Only include guest_id if provided
+    if event_data.get("guest_id") is None:
+        event_data.pop("guest_id", None)
+
+    event = Event(id=uuid.uuid4(), **event_data)
     db.add(event)
     db.flush()
 
@@ -55,7 +77,7 @@ def create_event(data: EventCreate, db: Session = Depends(get_db)):
     }
 
 
-@router.get("", response_model=list[EventOut])
+@router.get("")
 def list_events(
     from_date: Optional[str] = Query(None),
     to_date: Optional[str] = Query(None),
@@ -69,7 +91,25 @@ def list_events(
         q = q.filter(Event.event_date <= to_date)
     if status:
         q = q.filter(Event.status == status)
-    return q.order_by(Event.event_date).all()
+    events = q.order_by(Event.event_date).all()
+    result = []
+    for e in events:
+        space = db.query(EventSpace).filter(EventSpace.id == e.space_id).first()
+        result.append({
+            "id": str(e.id),
+            "name": e.name,
+            "event_type": e.event_type,
+            "space_id": e.space_id,
+            "space_name": space.name if space else "—",
+            "event_date": str(e.event_date),
+            "start_time": str(e.start_time),
+            "end_time": str(e.end_time),
+            "guest_count": e.guest_count,
+            "status": e.status,
+            "special_requirements": e.special_requirements,
+            "created_at": str(e.created_at),
+        })
+    return result
 
 
 @router.get("/{event_id}", response_model=EventOut)

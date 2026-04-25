@@ -32,8 +32,12 @@ class PaymentCreate(BaseModel):
     amount: float
     method: str
     reference_number: Optional[str] = None
-    payment_date: date
+    payment_date: date = None
     notes: Optional[str] = None
+
+    def model_post_init(self, __context):
+        if self.payment_date is None:
+            object.__setattr__(self, "payment_date", date.today())
 
 
 class PaymentOut(BaseModel):

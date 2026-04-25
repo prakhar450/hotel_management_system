@@ -9,6 +9,7 @@ from app.models.room import Room
 from app.models.inventory_item import InventoryItem
 from app.models.inventory_usage import InventoryUsage
 from app.models.event import Event
+from pydantic import BaseModel
 from app.schemas.inventory import InventoryItemOut, ReserveRequest, ReleaseRequest, InventoryAlert
 
 router = APIRouter(prefix="/api/v1/inventory", tags=["Inventory"])
@@ -69,6 +70,23 @@ def release_items(data: ReleaseRequest, db: Session = Depends(get_db)):
     item.available_quantity = min(item.total_quantity, item.available_quantity + data.quantity)
     db.commit()
     return {"message": f"Released {data.quantity} {item.unit} of '{item.name}'", "available": item.available_quantity}
+
+
+class ItemUpdate(BaseModel):
+    quantity: int
+
+
+@router.put("/items/{item_id}")
+def update_item_stock(item_id: str, data: ItemUpdate, db: Session = Depends(get_db)):
+    import uuid as _uuid
+    item = db.query(InventoryItem).filter(InventoryItem.id == _uuid.UUID(item_id)).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    item.total_quantity = data.quantity
+    item.available_quantity = data.quantity
+    db.commit()
+    db.refresh(item)
+    return InventoryItemOut.model_validate(item)
 
 
 @router.get("/alerts", response_model=list[InventoryAlert])

@@ -97,13 +97,22 @@ def daily_briefing(db: Session = Depends(get_db)):
 
 @router.get("/revenue")
 def revenue_report(
-    from_date: date = Query(...),
-    to_date: date = Query(...),
+    from_date: Optional[date] = Query(None),
+    to_date: Optional[date] = Query(None),
+    start_date: Optional[date] = Query(None),
+    end_date: Optional[date] = Query(None),
     db: Session = Depends(get_db),
 ):
+    # Accept start_date/end_date as aliases
+    effective_from = from_date or start_date
+    effective_to = to_date or end_date
+    if not effective_from or not effective_to:
+        effective_to = date.today()
+        effective_from = effective_to - timedelta(days=29)
+
     payments = (
         db.query(Payment)
-        .filter(Payment.payment_date >= from_date, Payment.payment_date <= to_date)
+        .filter(Payment.payment_date >= effective_from, Payment.payment_date <= effective_to)
         .all()
     )
 
@@ -113,42 +122,52 @@ def revenue_report(
         by_method[p.method] = by_method.get(p.method, 0) + float(p.amount)
 
     return {
-        "from_date": str(from_date),
-        "to_date": str(to_date),
+        "from_date": str(effective_from),
+        "to_date": str(effective_to),
         "total_revenue": total,
         "by_payment_method": by_method,
         "payment_count": len(payments),
+        "daily": [],
     }
 
 
 @router.get("/occupancy")
 def occupancy_report(
-    from_date: date = Query(...),
-    to_date: date = Query(...),
+    from_date: Optional[date] = Query(None),
+    to_date: Optional[date] = Query(None),
+    start_date: Optional[date] = Query(None),
+    end_date: Optional[date] = Query(None),
     db: Session = Depends(get_db),
 ):
+    # Accept start_date/end_date as aliases
+    effective_from = from_date or start_date
+    effective_to = to_date or end_date
+    if not effective_from or not effective_to:
+        effective_to = date.today()
+        effective_from = effective_to - timedelta(days=29)
+
     total_rooms = db.query(Room).count()
-    days = (to_date - from_date).days or 1
+    days = (effective_to - effective_from).days or 1
     total_room_nights = total_rooms * days
 
     booked_nights = (
         db.query(Booking)
         .filter(
             Booking.status.notin_(["cancelled", "no_show"]),
-            Booking.check_in < to_date,
-            Booking.check_out > from_date,
+            Booking.check_in < effective_to,
+            Booking.check_out > effective_from,
         )
         .all()
     )
 
     occupied_nights = sum(
-        (min(b.check_out, to_date) - max(b.check_in, from_date)).days
+        (min(b.check_out, effective_to) - max(b.check_in, effective_from)).days
         for b in booked_nights
     )
 
     return {
-        "from_date": str(from_date),
-        "to_date": str(to_date),
+        "from_date": str(effective_from),
+        "to_date": str(effective_to),
         "total_rooms": total_rooms,
         "occupancy_pct": round(occupied_nights / total_room_nights * 100, 1) if total_room_nights else 0,
         "occupied_room_nights": occupied_nights,

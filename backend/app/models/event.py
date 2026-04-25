@@ -26,7 +26,7 @@ class Event(Base):
     name: Mapped[str] = mapped_column(String(300), nullable=False)
     event_type: Mapped[str] = mapped_column(String(50), nullable=False)
     # wedding/corporate/birthday/social
-    guest_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("guests.id"), nullable=False)
+    guest_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("guests.id"), nullable=True)
     space_id: Mapped[int] = mapped_column(Integer, ForeignKey("event_spaces.id"), nullable=False)
     event_date: Mapped[date] = mapped_column(Date, nullable=False)
     start_time: Mapped[time] = mapped_column(Time, nullable=False)

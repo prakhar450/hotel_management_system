@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.booking import Booking
+from app.models.guest import Guest
 from app.models.room import Room
 from app.schemas.booking import BookingCreate, BookingUpdate, BookingOut, BookingWithInvoice
 from app.services.booking_service import create_booking
@@ -15,7 +16,27 @@ from app.services.booking_service import create_booking
 router = APIRouter(prefix="/api/v1/bookings", tags=["Bookings"])
 
 
-@router.post("", response_model=BookingWithInvoice, status_code=201)
+def _booking_to_dict(b: Booking, guest: Guest | None, room: Room | None) -> dict:
+    return {
+        "id": str(b.id),
+        "guest_id": str(b.guest_id),
+        "room_id": b.room_id,
+        "check_in": str(b.check_in),
+        "check_out": str(b.check_out),
+        "actual_checkin": str(b.actual_checkin) if b.actual_checkin else None,
+        "actual_checkout": str(b.actual_checkout) if b.actual_checkout else None,
+        "status": b.status,
+        "adults": b.adults,
+        "children": b.children,
+        "special_requests": b.special_requests,
+        "source": b.source,
+        "created_at": str(b.created_at),
+        "guest_name": guest.name if guest else "—",
+        "room_number": room.room_number if room else "—",
+    }
+
+
+@router.post("", status_code=201)
 def new_booking(data: BookingCreate, db: Session = Depends(get_db)):
     try:
         booking, invoice = create_booking(db, data)
@@ -26,15 +47,19 @@ def new_booking(data: BookingCreate, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=409, detail=str(e))
 
-    return BookingWithInvoice(
-        booking=BookingOut.model_validate(booking),
-        invoice_id=invoice.id,
-        invoice_number=invoice.invoice_number,
-        invoice_total=float(invoice.total_amount),
-    )
+    guest = db.query(Guest).filter(Guest.id == booking.guest_id).first()
+    room = db.query(Room).filter(Room.id == booking.room_id).first()
+    booking_dict = _booking_to_dict(booking, guest, room)
+
+    return {
+        "booking": booking_dict,
+        "invoice_id": str(invoice.id),
+        "invoice_number": invoice.invoice_number,
+        "invoice_total": float(invoice.total_amount),
+    }
 
 
-@router.get("", response_model=list[BookingOut])
+@router.get("")
 def list_bookings(
     status: Optional[str] = Query(None),
     room_id: Optional[int] = Query(None),
@@ -51,15 +76,23 @@ def list_bookings(
         q = q.filter(Booking.check_in >= from_date)
     if to_date:
         q = q.filter(Booking.check_out <= to_date)
-    return q.order_by(Booking.check_in).all()
+    bookings = q.order_by(Booking.check_in).all()
+    result = []
+    for b in bookings:
+        guest = db.query(Guest).filter(Guest.id == b.guest_id).first()
+        room = db.query(Room).filter(Room.id == b.room_id).first()
+        result.append(_booking_to_dict(b, guest, room))
+    return result
 
 
-@router.get("/{booking_id}", response_model=BookingOut)
+@router.get("/{booking_id}")
 def get_booking(booking_id: uuid.UUID, db: Session = Depends(get_db)):
     booking = db.query(Booking).filter(Booking.id == booking_id).first()
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
-    return booking
+    guest = db.query(Guest).filter(Guest.id == booking.guest_id).first()
+    room = db.query(Room).filter(Room.id == booking.room_id).first()
+    return _booking_to_dict(booking, guest, room)
 
 
 @router.put("/{booking_id}", response_model=BookingOut)

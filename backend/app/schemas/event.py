@@ -6,9 +6,9 @@ from pydantic import BaseModel
 
 
 class EventCreate(BaseModel):
-    name: str
+    name: Optional[str] = None
     event_type: str
-    guest_id: uuid.UUID
+    guest_id: Optional[uuid.UUID] = None
     space_id: int
     event_date: date
     start_time: time
@@ -28,7 +28,7 @@ class EventOut(BaseModel):
     id: uuid.UUID
     name: str
     event_type: str
-    guest_id: uuid.UUID
+    guest_id: Optional[uuid.UUID]
     space_id: int
     event_date: date
     start_time: time

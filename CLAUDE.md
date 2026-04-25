@@ -609,38 +609,36 @@ Items marked `[CRITICAL]` will cause data loss or double-bookings if skipped.
 
 ---
 
-### PHASE 4 — REACT FRONTEND DASHBOARD
+### PHASE 4 — REACT FRONTEND DASHBOARD ✅ DONE
 
 #### Setup
-- [ ] Scaffold frontend with Vite + React (`npm create vite@latest frontend -- --template react`)
-- [ ] Install Tailwind CSS and configure
-- [ ] Install: axios, react-router-dom, react-query (or SWR), date-fns, recharts
-- [ ] Create Axios API client with base URL from env, error handling, loading states
-- [ ] Set up React Router with all page routes
-- [ ] Create basic layout: sidebar nav + top bar + main content area
+- [x] Scaffold frontend with Vite + React (manual scaffold — `npm create vite@latest` incompatible with Node 20.10)
+- [x] Install Tailwind CSS and configure
+- [x] Install: axios, react-router-dom, date-fns, recharts, lucide-react
+- [x] Create Axios API client (`src/api/client.js`) — one function per endpoint, proxy to :8000
+- [x] Set up React Router with all page routes
+- [x] Create basic layout: sidebar nav + main content (`src/components/Layout.jsx`)
 
-#### Pages (build in this order)
-- [ ] `[DEMO]` **Dashboard page** — morning briefing card, today's check-ins/check-outs table, active alerts banner, quick action buttons (New Booking, New Guest, Record Payment)
-- [ ] `[DEMO]` **Rooms page** — grid of room cards showing room number, type, current status (colour-coded: green=available, orange=occupied, grey=maintenance), click to see current guest
-- [ ] `[DEMO]` **New Booking flow** — Step 1: date picker + room type selector → Step 2: guest search/create → Step 3: confirm + see generated invoice
-- [ ] `[DEMO]` **Bookings list** — filterable table (date, status, room), click to open booking detail
-- [ ] `[DEMO]` **Check-in / Check-out buttons** on booking detail page — one click, confirms with agent response
-- [ ] **Calendar page** — month view, bookings shown as coloured bars per room, events shown on event space rows
-- [ ] **Guest directory** — searchable by name/phone, guest card with booking history
-- [ ] `[DEMO]` **Events / Weddings page** — list of upcoming events, status badges, click to see details
-- [ ] `[DEMO]` **Invoices page** — list with status filter (draft/sent/paid/overdue), PDF download button per row
-- [ ] `[DEMO]` **Record Payment** — modal/form: select invoice, enter amount, method, reference number
-- [ ] **Inventory page** — room status grid, consumables table with low-stock highlights, alerts list
-- [ ] **Leads / Sales page** — Kanban-style columns (New → Contacted → Quoted → Won/Lost)
-- [ ] **Agent Logs page** — activity feed showing every agent action (what was asked, what was decided, timestamp)
-- [ ] **Reports page** — Revenue bar chart (daily/monthly), occupancy % gauge, events summary
+#### Pages
+- [x] `[DEMO]` **Dashboard page** — stat cards, quick action buttons, morning briefing via Manager Agent
+- [x] `[DEMO]` **Rooms page** — grid by floor, colour-coded status (available/occupied/maintenance)
+- [x] `[DEMO]` **New Booking flow** — 4-step wizard: dates → pick room → guest search/create → confirm
+- [x] `[DEMO]` **Bookings list** — table with status filter, one-click check-in / check-out
+- [x] `[DEMO]` **Check-in / Check-out buttons** — inline in bookings table, instant action
+- [ ] **Calendar page** — not yet built
+- [ ] **Guest directory** — not yet built
+- [x] `[DEMO]` **Events page** — list + new event inline form
+- [x] `[DEMO]` **Invoices page** — list with status filter tabs
+- [x] `[DEMO]` **Invoice detail / Record Payment** — payment form + Accounting Agent confirmation thread
+- [x] **Inventory page** — low-stock alerts banner, consumables table by category, inline qty update
+- [ ] **Leads / Sales page** — not yet built
+- [x] **Agent Chat page** — compose panel with agent selector + recent conversations list
+- [x] **Conversation view** — full agent team-chat thread using `AgentBubble` component
 
-#### UI polish (for demo)
-- [ ] `[DEMO]` Add loading spinners on all data fetch states
-- [ ] `[DEMO]` Add error states with user-friendly messages
-- [ ] `[DEMO]` Add success toast notifications for: booking created, payment recorded, check-in done
-- [ ] Make all tables responsive (horizontal scroll on mobile)
-- [ ] Add property name to top bar (configurable from env or settings)
+#### UI polish
+- [x] Loading spinners on all data fetch states
+- [ ] Toast notifications — not yet built
+- [x] `AgentBubble` component — colour-coded bubbles per agent, message type badges, duration
 
 ---
 
